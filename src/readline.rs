@@ -14,7 +14,12 @@ pub fn readline(prompt: &CStr) -> Result<Option<String>, Utf8Error> {
   } else {
     let cstr = unsafe { CStr::from_ptr(cstr_ptr) };
     let r = cstr.to_str().map(|s| Some(String::from(s)));
-    unsafe { sys::free(cstr_ptr as _) };
+    unsafe { 
+      if *cstr_ptr != 0 {
+        sys::add_history(cstr_ptr);
+      }
+      sys::free(cstr_ptr as _);
+    }
     r
   }
 }
@@ -26,5 +31,6 @@ mod sys {
   extern "C" {
     pub fn free(ptr: *mut c_void);
     pub fn readline(prompt: *const c_char) -> *mut c_char;
+    pub fn add_history(line: *const c_char);
   }
 }
