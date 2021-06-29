@@ -1,6 +1,6 @@
 ## 一个操作 fcitx5 码表的工具
 
-这是一个继承 [fcitx-mb](https://www.jiemian.com/article/6290864.html) 的工具，但是用于 fcitx5。
+这是一个继承 [fcitx-mb](https://github.com/lilydjwg/fcitx-mb) 的工具，但是用于 fcitx5。
 
 并不是很满意，因为 fcitx5 的库缺乏一些特性。
 
