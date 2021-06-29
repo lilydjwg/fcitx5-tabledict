@@ -1,5 +1,5 @@
 [package]
-name = "fcitx5-table"
+name = "fcitx5-tabledict"
 version = "0.1.0"
 authors = ["lilydjwg <lilydjwg@gmail.com>"]
 edition = "2018"
