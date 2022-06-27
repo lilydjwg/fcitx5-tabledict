@@ -1,0 +1,72 @@
+#!/usr/bin/python3
+
+import sys
+from bisect import bisect_left
+
+class Entry:
+  def __init__(self, value):
+    self.value = value
+
+  def __lt__(self, other):
+    return self.value.split(' ', 1)[0] < other.split(' ', 1)[0]
+
+def find_entry(d, target):
+  key = target.split(' ', 1)[0]
+  pos = bisect_left(d, target)
+
+  while True:
+    try:
+      n = d[pos].value
+    except IndexError:
+      return pos, False
+    if n.split(' ', 1)[0] == key:
+      if n == target:
+        return pos, True
+      pos += 1
+    else:
+      break
+
+  return pos, False
+
+def read_main(f):
+  for line in f:
+    if line == '[Data]\n':
+      break
+
+  d = [Entry(x) for x in f]
+  return d
+
+def combine_user(main, f):
+  is_auto = False
+
+  for line in f:
+    if line == '[Delete]\n':
+      break
+    if line == '[Auto]\n':
+      is_auto = True
+    if is_auto:
+      continue
+
+    pos, match = find_entry(main, line)
+    if not match:
+      main.insert(pos, Entry(line))
+
+  for line in f:
+    pos, match = find_entry(main, line)
+    if match:
+      del main[pos]
+
+def write_data(main):
+  stdout = sys.stdout
+  for entry in main:
+    code, hz = entry.value[:-1].split(' ', 1)
+    # stdout.write(f'{hz}\t{code}\n')
+    stdout.write(f'{code} {hz}\n')
+
+if __name__ == '__main__':
+  _, mainf, userf = sys.argv
+  with open(mainf) as f:
+    main = read_main(f)
+  with open(userf) as f:
+    combine_user(main, f)
+  write_data(main)
