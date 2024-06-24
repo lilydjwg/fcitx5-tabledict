@@ -105,7 +105,7 @@ impl Commander {
 
   fn do_save(&mut self, _args: Args) -> NextOp {
     if let Err(e) = self.dict.save() {
-      println!("save failed: {}", e.to_string());
+      println!("save failed: {}", e);
     }
     NextOp::Continue
   }
