@@ -28,7 +28,7 @@ mod sys {
   use std::os::raw::c_char;
   use std::ffi::c_void;
   #[link(name="readline")]
-  extern "C" {
+  unsafe extern "C" {
     pub fn free(ptr: *mut c_void);
     pub fn readline(prompt: *const c_char) -> *mut c_char;
     pub fn add_history(line: *const c_char);

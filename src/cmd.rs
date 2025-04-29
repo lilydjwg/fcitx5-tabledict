@@ -39,7 +39,7 @@ impl Commander {
   pub fn new(dict: TableDict) -> Self {
     Self {
       dict, commands: COMMANDS,
-      prompt: readline::prompt("\x1b[38;5;135m>>\x1b[0m "),
+      prompt: readline::prompt("\x01\x1b[38;5;135m\x02>>\x01\x1b[0m\x02 "),
     }
   }
 

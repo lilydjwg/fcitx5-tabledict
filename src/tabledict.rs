@@ -7,7 +7,7 @@ use std::fmt;
 
 enum TableDictCxx { }
 
-extern "C" {
+unsafe extern "C" {
   fn new_tabledict() -> *mut TableDictCxx;
   fn free_table_dict(td: *mut TableDictCxx);
 
@@ -79,8 +79,10 @@ impl fmt::Display for WordEntry {
 
 /// Note: returned value should be used only within the callback
 unsafe fn char_ptr_to_str(ptr: *const u8, len: usize) -> &'static str {
-  let slice = std::slice::from_raw_parts(ptr, len);
-  std::str::from_utf8_unchecked(slice)
+  unsafe {
+    let slice = std::slice::from_raw_parts(ptr, len);
+    std::str::from_utf8_unchecked(slice)
+  }
 }
 
 fn path_to_cstring(path: &Path) -> Result<CString, NulError> {
@@ -98,10 +100,7 @@ impl TableDict {
       if msg.is_empty() {
         Ok(())
       } else {
-        Err(io::Error::new(
-          io::ErrorKind::Other,
-          format!("failed to load {}: {}", which, msg),
-        ))
+        Err(io::Error::other(format!("failed to load {}: {}", which, msg)))
       }
     }
 
@@ -138,12 +137,14 @@ impl TableDict {
       index: u32,
       flag: PhraseFlag,
     ) {
-      (*(vec as *mut Vec<WordEntry>)).push(WordEntry {
-        code: char_ptr_to_str(code, code_len).to_owned(),
-        word: char_ptr_to_str(word, word_len).to_owned(),
-        index,
-        flag,
-      })
+      unsafe {
+        (*(vec as *mut Vec<WordEntry>)).push(WordEntry {
+          code: char_ptr_to_str(code, code_len).to_owned(),
+          word: char_ptr_to_str(word, word_len).to_owned(),
+          index,
+          flag,
+        })
+      }
     }
 
     let _matched = unsafe {
@@ -215,10 +216,7 @@ impl TableDict {
       if err.is_empty() {
         Ok(())
       } else {
-        Err(io::Error::new(
-            io::ErrorKind::Other,
-            err,
-        ))
+        Err(io::Error::other(err))
       }
     } else {
       Err(io::Error::new(
@@ -258,11 +256,13 @@ pub enum PhraseFlag {
   Invalid,
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 unsafe extern "C" fn put_string(
   s: *mut c_void,
   v: *const u8,
   len: usize,
 ) {
-  (*(s as *mut String)).push_str(char_ptr_to_str(v, len));
+  unsafe {
+    (*(s as *mut String)).push_str(char_ptr_to_str(v, len));
+  }
 }
